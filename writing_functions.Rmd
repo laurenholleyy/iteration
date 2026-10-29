@@ -3,9 +3,84 @@ title: "Iteration"
 output: github_document
 ---
 
-```{r}
+```{r message=FALSE}
 library(tidyverse)
 library(rvest)
+library(readxl)
 
 set.seed(1)
 ```
+
+## Functions
+
+Start small with Z scores
+
+```{r}
+x_vec = rnorm(n = 40, mean = 12, sd = 63)
+
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+Turn this into a function
+
+```{r}
+z_scores = function(x) {
+  
+   if (!is.numeric(x)) {
+    stop("Argument x should be numeric")
+  } else if (length(x) == 1) {
+    stop("Z scores cannot be computed for length 1 vectors")
+  }
+  
+  z = (x - mean(x)) / sd(x) 
+  
+  return(z)
+  
+}
+```
+
+Checking if it works
+
+```{r eval = FALSE}
+z_scores(x_vec)
+z_scores(rpois(4000, lambda = 12))
+```
+
+^ this works just lots of numbers 
+
+```{r eval = FALSE}
+z_scores(c(TRUE, TRUE, FALSE, FALSE))
+z_scores("HELLOOOOO")
+```
+
+^ this doesn't
+
+## Mean and SD
+
+```{r}
+mean(x_vec)
+sd(x_vec)
+```
+
+Write a function that returns mean and sd of an input vector.
+
+```{r}
+mean_and_sd = function(x) {
+  
+  return_df = 
+    tibble(
+      mean = mean(x),
+      sd = sd(x)
+    )
+  
+  return(return_df)
+  
+}
+```
+
+Check that this works
+
+```{r}
+mean_and_sd(x_vec)
+```
+
