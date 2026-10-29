@@ -106,3 +106,45 @@ sim_mean_sd(n_obs = 4, mu = 12, sigma = 12)
     ##    mean    sd
     ##   <dbl> <dbl>
     ## 1  14.5  5.85
+
+## Fixing things that bother jeff
+
+``` r
+fellowship_df =
+  read_excel("data/LotR_Words.xlsx", range = "B3:D6") |>
+  mutate(movie = "fellowship")
+
+two_towers_df =
+  read_excel("data/LotR_Words.xlsx", range = "F3:H6") |>
+  mutate(movie = "two_towers")
+
+return_df =
+  read_excel("data/LotR_Words.xlsx", range = "J3:L6") |>
+  mutate(movie = "return_of_king")
+```
+
+## Rewriting this as a function
+
+``` r
+source("source/lotr_import.R")
+```
+
+``` r
+fellowship_df =
+  lotr_import(cell_range = "B3:D6", movie_title = "fellowship")
+```
+
+And now fixed
+
+``` r
+source("source/nsduh_process.R")
+```
+
+``` r
+nsduh_url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+marj_df =
+  nsduh_process(html = nsduh_html, table_num = 1)
+```
