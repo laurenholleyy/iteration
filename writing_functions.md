@@ -78,17 +78,7 @@ sd(x_vec)
 Write a function that returns mean and sd of an input vector.
 
 ``` r
-mean_and_sd = function(x) {
-  
-  return_df = 
-    tibble(
-      mean = mean(x),
-      sd = sd(x)
-    )
-  
-  return(return_df)
-  
-}
+source("source/mean_and_sd.R")
 ```
 
 Check that this works
@@ -101,3 +91,18 @@ mean_and_sd(x_vec)
     ##    mean    sd
     ##   <dbl> <dbl>
     ## 1  17.8  55.9
+
+## Motivate and write another one
+
+``` r
+source("source/sim_mean_sd.R")
+```
+
+``` r
+sim_mean_sd(n_obs = 4, mu = 12, sigma = 12)
+```
+
+    ## # A tibble: 1 × 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  14.5  5.85
