@@ -391,3 +391,85 @@ nsduh_df |>
 
 - Takeaways include understanding the mutate by mapping and
   selecting/unnesting functions
+
+## WEATHER AGAIN
+
+``` r
+data("weather_df")
+
+weather_df = 
+  weather_df |>
+  nest(data = date:tmin)
+```
+
+What if I want to do a regression of tmax on tmin for each station?
+
+``` r
+lm(tmax ~ tmin, data = pull(weather_df, data)[[1]])
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ tmin, data = pull(weather_df, data)[[1]])
+    ## 
+    ## Coefficients:
+    ## (Intercept)         tmin  
+    ##       7.514        1.034
+
+``` r
+weather_lm = function(input_data) {
+  
+  lm(tmax ~ tmin, data = input_data)
+  
+}
+
+weather_lm(pull(weather_df, data)[[1]])
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ tmin, data = input_data)
+    ## 
+    ## Coefficients:
+    ## (Intercept)         tmin  
+    ##       7.514        1.034
+
+``` r
+weather_df |>
+  mutate(
+    lm_fits = map(data, weather_lm)
+  ) |>
+  pull(lm_fits)
+```
+
+    ## [[1]]
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ tmin, data = input_data)
+    ## 
+    ## Coefficients:
+    ## (Intercept)         tmin  
+    ##       7.514        1.034  
+    ## 
+    ## 
+    ## [[2]]
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ tmin, data = input_data)
+    ## 
+    ## Coefficients:
+    ## (Intercept)         tmin  
+    ##     21.7547       0.3222  
+    ## 
+    ## 
+    ## [[3]]
+    ## 
+    ## Call:
+    ## lm(formula = tmax ~ tmin, data = input_data)
+    ## 
+    ## Coefficients:
+    ## (Intercept)         tmin  
+    ##       7.532        1.137
+
+^ First line is pulling all data from `[[1]]` first data frame and doing
+linear regression
