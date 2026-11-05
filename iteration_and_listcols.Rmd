@@ -134,7 +134,60 @@ listcol_df |>
   )
 ```
 
+## Another Example
 
+NSDUH Import etc
 
+```{r}
+nsduh_url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
 
+nsduh_html = read_html(nsduh_url)
 
+nsduh_process(html = nsduh_html, table_num = 1)
+nsduh_process(html = nsduh_html, table_num = 4)
+nsduh_process(html = nsduh_html, table_num = 5)
+```
+
+Import using iteration
+
+```{r}
+output = vector("list", length = 3)
+
+table_nums = c(1, 4, 5)
+
+for (i in 1:3) {
+  
+  output[[i]] = nsduh_process(html = nsduh_html, table_num = table_nums[i])
+  
+}
+```
+
+let's build up a map example
+
+```{r}
+output = map(table_nums, nsduh_process, html = nsduh_html)
+```
+
+now we try list columns
+
+```{r}
+nsduh_df = 
+  tibble(
+    drug = c("marj", "cocaine", "heroin"),
+    num = c(1, 4, 5)
+  ) |>
+  mutate(
+    table = map(num, nsduh_process, html = nsduh_html)
+  ) |>
+  select(-num) |>
+  unnest(table)
+
+nsduh_df |>
+  filter(age == "12-17")|>
+  mutate(State = fct_reorder(State, percent)) |>
+  ggplot(aes(x = State, y = percent, color = year)) +
+  geom_point() +
+  facet_grid(. ~ drug)
+```
+
+* Takeaways include understanding the mutate by mapping and selecting/unnesting functions

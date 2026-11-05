@@ -202,3 +202,192 @@ mean_and_sd(pull(listcol_df, samp)[[1]])
     ##    mean    sd
     ##   <dbl> <dbl>
     ## 1  2.94  3.32
+
+Can I iterate?
+
+``` r
+map(pull(listcol_df, samp), mean_and_sd)
+```
+
+    ## $a
+    ## # A tibble: 1 × 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  2.94  3.32
+    ## 
+    ## $b
+    ## # A tibble: 1 × 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1 -9.22  22.7
+    ## 
+    ## $c
+    ## # A tibble: 1 × 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1 1000.  6.65
+    ## 
+    ## $d
+    ## # A tibble: 1 × 2
+    ##      mean    sd
+    ##     <dbl> <dbl>
+    ## 1 -0.0560  1.09
+
+super coolness incoming
+
+``` r
+listcol_df |>
+  mutate(
+    output = map(samp, mean_and_sd)
+  )
+```
+
+    ## # A tibble: 4 × 3
+    ##   name  samp         output          
+    ##   <chr> <named list> <named list>    
+    ## 1 a     <dbl [20]>   <tibble [1 × 2]>
+    ## 2 b     <dbl [20]>   <tibble [1 × 2]>
+    ## 3 c     <dbl [20]>   <tibble [1 × 2]>
+    ## 4 d     <dbl [20]>   <tibble [1 × 2]>
+
+``` r
+listcol_df |>
+  mutate(
+    output = map_df(samp, mean_and_sd)
+  )
+```
+
+    ## # A tibble: 4 × 3
+    ##   name  samp         output$mean   $sd
+    ##   <chr> <named list>       <dbl> <dbl>
+    ## 1 a     <dbl [20]>        2.94    3.32
+    ## 2 b     <dbl [20]>       -9.22   22.7 
+    ## 3 c     <dbl [20]>     1000.      6.65
+    ## 4 d     <dbl [20]>       -0.0560  1.09
+
+``` r
+listcol_df |>
+  mutate(
+    output = map_dbl(samp, median)
+  )
+```
+
+    ## # A tibble: 4 × 3
+    ##   name  samp           output
+    ##   <chr> <named list>    <dbl>
+    ## 1 a     <dbl [20]>      2.65 
+    ## 2 b     <dbl [20]>    -10.9  
+    ## 3 c     <dbl [20]>   1000.   
+    ## 4 d     <dbl [20]>     -0.168
+
+## Another Example
+
+NSDUH Import etc
+
+``` r
+nsduh_url = "https://www.samhsa.gov/data/sites/default/files/NSDUHsaeShortTermCHG2015/NSDUHsaeShortTermCHG2015.htm"
+
+nsduh_html = read_html(nsduh_url)
+
+nsduh_process(html = nsduh_html, table_num = 1)
+```
+
+    ## # A tibble: 510 × 4
+    ##    State   age   year      percent
+    ##    <chr>   <chr> <chr>       <dbl>
+    ##  1 Alabama 12+   2013-2014    9.98
+    ##  2 Alabama 12+   2014-2015    9.6 
+    ##  3 Alabama 12-17 2013-2014    9.9 
+    ##  4 Alabama 12-17 2014-2015    9.71
+    ##  5 Alabama 18-25 2013-2014   27.0 
+    ##  6 Alabama 18-25 2014-2015   26.1 
+    ##  7 Alabama 26+   2013-2014    7.1 
+    ##  8 Alabama 26+   2014-2015    6.81
+    ##  9 Alabama 18+   2013-2014    9.99
+    ## 10 Alabama 18+   2014-2015    9.59
+    ## # ℹ 500 more rows
+
+``` r
+nsduh_process(html = nsduh_html, table_num = 4)
+```
+
+    ## # A tibble: 510 × 4
+    ##    State   age   year      percent
+    ##    <chr>   <chr> <chr>       <dbl>
+    ##  1 Alabama 12+   2013-2014    1.23
+    ##  2 Alabama 12+   2014-2015    1.22
+    ##  3 Alabama 12-17 2013-2014    0.42
+    ##  4 Alabama 12-17 2014-2015    0.41
+    ##  5 Alabama 18-25 2013-2014    3.09
+    ##  6 Alabama 18-25 2014-2015    3.2 
+    ##  7 Alabama 26+   2013-2014    1.01
+    ##  8 Alabama 26+   2014-2015    0.99
+    ##  9 Alabama 18+   2013-2014    1.31
+    ## 10 Alabama 18+   2014-2015    1.31
+    ## # ℹ 500 more rows
+
+``` r
+nsduh_process(html = nsduh_html, table_num = 5)
+```
+
+    ## # A tibble: 510 × 4
+    ##    State   age   year      percent
+    ##    <chr>   <chr> <chr>       <dbl>
+    ##  1 Alabama 12+   2013-2014    0.22
+    ##  2 Alabama 12+   2014-2015    0.27
+    ##  3 Alabama 12-17 2013-2014    0.1 
+    ##  4 Alabama 12-17 2014-2015    0.08
+    ##  5 Alabama 18-25 2013-2014    0.45
+    ##  6 Alabama 18-25 2014-2015    0.64
+    ##  7 Alabama 26+   2013-2014    0.19
+    ##  8 Alabama 26+   2014-2015    0.23
+    ##  9 Alabama 18+   2013-2014    0.23
+    ## 10 Alabama 18+   2014-2015    0.29
+    ## # ℹ 500 more rows
+
+Import using iteration
+
+``` r
+output = vector("list", length = 3)
+
+table_nums = c(1, 4, 5)
+
+for (i in 1:3) {
+  
+  output[[i]] = nsduh_process(html = nsduh_html, table_num = table_nums[i])
+  
+}
+```
+
+let’s build up a map example
+
+``` r
+output = map(table_nums, nsduh_process, html = nsduh_html)
+```
+
+now we try list columns
+
+``` r
+nsduh_df = 
+  tibble(
+    drug = c("marj", "cocaine", "heroin"),
+    num = c(1, 4, 5)
+  ) |>
+  mutate(
+    table = map(num, nsduh_process, html = nsduh_html)
+  ) |>
+  select(-num) |>
+  unnest(table)
+
+nsduh_df |>
+  filter(age == "12-17")|>
+  mutate(State = fct_reorder(State, percent)) |>
+  ggplot(aes(x = State, y = percent, color = year)) +
+  geom_point() +
+  facet_grid(. ~ drug)
+```
+
+![](iteration_and_listcols_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+- Takeaways include understanding the mutate by mapping and
+  selecting/unnesting functions
